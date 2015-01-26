@@ -1,0 +1,92 @@
+body {
+    background: #eee;
+    text-align: center;
+    padding: 0 0px;
+}
+
+#main {
+    margin: auto;
+    text-align: left;
+    background: lightskyblue;
+    padding: 0px 0px;
+    border: solid #ddd;
+    border-width: 0 0px 0px 0px;
+	width: 100%;
+	overflow: none;
+}
+
+#main h1 {
+    margin-top: 0;
+    font-size: 35px;
+}
+
+#main ul {
+    padding-left: 20px;
+}
+
+#main .action {
+	position: relative;
+	float: left;
+	height: 80px;
+    border: 5px;
+	border-color: lightsteelblue;
+	border-style: solid;
+    background: lightskyblue;
+	cursor: pointer;
+    padding: 5px;
+	width: 120px;
+	text-align: center;
+}
+
+#log .logLine {
+	font-size: 12px;
+	color: white;
+	line-height: 13px;
+}
+
+#log .logError {
+	font-size: 12px;
+	color: red;
+	line-height: 13px;
+}
+
+#display .challenge {
+	font-size: 12px;
+	color: blue;
+	line-height: 13px;
+}
+
+#log p {
+	overflow: hidden;
+    text-align: left;
+    background: darkslategrey;
+}
+
+#log {
+	height: 150px;
+	position: fixed;
+	bottom: 0%;
+	width: 100%;
+	overflow: scroll;
+    text-align: left;
+    background: darkslategrey;
+    padding: 0px 0px;
+    border: solid #ddd;
+    border-width: 0 0px 0px 0px;
+}
+
+#display {
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+    text-align: left;
+    background: lightgrey;
+    padding: 0px 0px;
+    border: solid #ddd;
+    border-width: 0 0px 0px 0px;
+}
+
+#display .challengeForm {
+	padding: 15px;
+}
+

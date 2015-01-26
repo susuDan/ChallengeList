@@ -1,0 +1,328 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+
+  <title>Testing Parse App</title>
+  <meta name="description" content="My Parse App">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.4.min.js"></script>
+</head>
+
+<body>
+  
+  <div id="main">
+	<div onclick="javascript:CreateChallengesList()" class="action">
+	  <p>Create Default Challenges<p>
+	</div>
+	<div onclick="javascript:RefreshChallengeList()" class="action">
+	  <p>Refresh<p>
+	</div>
+	<div onclick="javascript:ShowChallengeForm()" class="action">
+	  <p>New Challenge<p>
+	</div>
+
+  </div>
+  <div id="display">
+  </div>
+  <div id="log">
+  </div>
+
+  <script type="text/javascript">
+    Parse.initialize("A6AWoEb3MwcoCdYOLyAkT4IcRPCsEz17zkh9LSBR", "6aQHdi83cOzNbk5Mx4ixjZUv678d9NPQewRQzjo6");
+
+	var Challenge = Parse.Object.extend("Challenge", 
+		{
+			// Instance methods
+			Name: function() 
+			{
+				return this.get("name");
+			},
+			
+			Description: function()
+			{
+				return this.get("description");
+			},
+
+			ImageUrl: function()
+			{
+				return this.get("imageurl");
+			},
+			
+			Duration: function()
+			{
+				return this.get("duration");
+			},
+			
+			Metric: function()
+			{
+				return this.get("metric");
+			},
+			
+			Start: function()
+			{
+				return this.get("start");
+			},
+			
+			Goal: function()
+			{
+				return this.get("goal");
+			},
+			
+			initialize: function(attrs, options)
+			{
+				//TODO
+			},
+			
+			Merge: function(otherChallenge)
+			{
+				this.set("name", otherChallenge.Name());
+				this.set("description", otherChallenge.Description());
+				this.set("imageurl", otherChallenge.ImageUrl());
+				this.set("duration", otherChallenge.Duration());
+				this.set("metric", otherChallenge.Metric());
+				this.set("start", otherChallenge.Start());
+				this.set("goal", otherChallenge.Goal());
+			}
+		},
+		{
+			// Class methods
+			Create: function(name, description, imageurl, duration, metric, start, goal )
+			{
+				var challenge = new Challenge();
+				challenge.set("name", name);
+				challenge.set("description", description);
+				challenge.set("imageurl", imageurl);
+				challenge.set("duration", duration);
+				challenge.set("metric", metric);
+				challenge.set("start", start);
+				challenge.set("goal", goal);
+				return challenge;
+			}
+		});
+	
+	function RefreshChallengeList()
+	{
+		var query = new Parse.Query(Challenge);
+		query.limit(10);
+		// TODO: sort by updatedAt
+		query.find(
+		{
+			success: function(results) 
+			{
+				log("Successfully retrieved " + results.length + " challenges.");
+				displayChallenges(results);
+			},
+			error: function(error) 
+			{
+				log("Error: Unable to retrieve challenges. " + error.code + " " + error.message);
+			}
+		});
+	}
+	
+	function displayChallenges(challenges)
+	{
+		$("#display").contents().empty();
+		
+		for (var i = 0; i < challenges.length; i++) { 
+			var challenge = challenges[i];
+			displayChallenge(challenge);
+		}
+		log("challenge display refreshed");
+	}
+	
+	function displayChallenge(challenge)
+	{
+		var challengeElem = $("<p class=\"challenge\"></p>)").text("Challenge: " + challenge.Name());
+		$("#display").contents().first().before(challengeElem);
+	}
+	
+	function log(message)
+	{
+		logImpl(message, "logLine");
+	}
+	
+	function logError(message)
+	{
+		logImpl(message, "logError");
+	}
+	
+	function logImpl(message, style)
+	{
+		var today = new Date();
+		var h = today.getHours();
+		var m = today.getMinutes();
+		var s = today.getSeconds();
+		var messageElem = $("<p class=\"" + style + "\"></p>)").text(h + ":" + m + ":" + s + " " + message);
+		$("#log").contents().first().before(messageElem);
+	}
+	
+	function CreateChallengesList()
+	{
+		var cookingChallenge = Challenge.Create("Cooking", "Cook 30 meals in 30 days", "", 30, "meals", 0, 30);
+		var sodaChallenge = Challenge.Create("Soda", "No soda for 30 straight days", "", 30, "days", 0, 30);
+		var rejectionChallenge = Challenge.Create("Rejection", "Get rejected daily", "", 30, "rejections", 0, 30);
+		
+		UpdateChallenge(cookingChallenge);
+		UpdateChallenge(sodaChallenge);
+		UpdateChallenge(rejectionChallenge);
+	}
+	
+	function OnSaveChallengeSuccess( challenge )
+	{
+		log("saved challenge: " + challenge.get("name"));
+	}
+    
+	function OnSaveChallengeError( challenge, error )
+	{
+		logError("Failed to save challenge: " + challenge.get("name") + " error code: " + error.message);
+	}
+	
+	function UpdateChallenge( newChallenge)
+	{
+		var query = new Parse.Query(Challenge);
+		query.equalTo("name", newChallenge.Name());
+		query.first(
+		{
+			success: function(challenge) 
+			{
+				OnUpdateChallengeSuccess(challenge, newChallenge)
+			},
+			error: function(error) 
+			{
+				logError("Unabled to create " + newChallenge.Name() + "error " + error.message);
+			}
+		});
+	}
+	
+	function OnUpdateChallengeSuccess( challenge, challengeNew )
+	{
+		if(challenge === undefined)
+		{
+			log("Creating New Challenge " + challengeNew.Name());		
+			challenge = challengeNew;
+		}
+		else
+		{
+			log("Found Existing " + challenge.Name());		
+			challenge.Merge(challengeNew);
+		}
+		SaveChallenge(challenge);
+	}
+	
+	function SaveChallenge( challenge )
+	{
+		challenge.save(null, 
+		{
+			success: OnSaveChallengeSuccess,
+			error: OnSaveChallengeError
+		});
+	}
+	
+	function ShowChallengeForm()
+	{
+		var display = $("#display");
+		display.contents().empty();
+		var form = $("<form/>", { action:'javascript:OnNewChallenge()', class:'challengeForm' });
+		var nameLabel = $("<label />", { style:'width:35%' }).text('Challenge Title:');
+		var nameInput = $("<input/>", 
+				 { type:'text', 
+				   placeholder:'Name Your Challenge', 
+				   name:'challengeNameInput',
+				   id:'challengeNameInput',
+				   style:'width:65%' }
+			 );
+		nameInput.appendTo(nameLabel);
+		form.append( nameLabel);
+		
+		form.append( $("<br>"));
+		var descriptionLabel = $("<label />", { style:'width:35%' }).text('Description:');
+		var descriptionInput = $("<input/>", 
+				 { type:'text', 
+				   placeholder:'Describe Your Challenge', 
+				   name:'challengeDescriptionInput',
+				   id:'challengeDescriptionInput',
+				   style:'width:65%' }
+			 );
+		descriptionInput.appendTo(descriptionLabel);
+		form.append( descriptionLabel);
+		
+		form.append( $("<br>"));
+		var metricLabel = $("<label />", { style:'width:35%' }).text('Metric:');
+		var metricInput = $("<input/>", 
+				 { type:'text', 
+				   placeholder:'Describe what units the challenge is measured by', 
+				   name:'challengeMetricInput',
+				   id:'challengeMetricInput',
+				   style:'width:65%' }
+			 );
+		metricInput.appendTo(metricLabel);
+		form.append( metricLabel);
+		
+		form.append( $("<br>"));
+		var durationLabel = $("<label />", { style:'width:35%' }).text('Duration:');
+		var durationInput = $("<input/>", 
+				 { type:'number', 
+				   placeholder:'How many days will this challenge last?', 
+				   name:'challengeDurationInput',
+				   id:'challengeDurationInput',
+				   style:'width:65%' }
+			 );
+		durationInput.appendTo(durationLabel);
+		form.append( durationLabel);
+
+		form.append( $("<br>"));
+		var startLabel = $("<label />", { style:'width:35%' }).text('Starting Mesurement:');
+		var startInput = $("<input/>", 
+				 { type:'number', 
+				   placeholder:'what is the starting line?', 
+				   name:'challengeStartInput',
+				   id:'challengeStartInput',
+				   style:'width:65%' }
+			 );
+		startInput.appendTo(startLabel);
+		form.append( startLabel);
+		
+		form.append( $("<br>"));
+		var goalLabel = $("<label />", { style:'width:35%' }).text('Goal Mesurement:');
+		var goalInput = $("<input/>", 
+				 { type:'number', 
+				   placeholder:'what is the goal line?', 
+				   name:'challengeGoalInput',
+				   id:'challengeGoalInput',
+				   style:'width:65%' }
+			 );
+		goalInput.appendTo(goalLabel);
+		form.append( goalLabel);
+		
+		form.append( $("<br>"));
+		form.append( 
+			 $("<input/>", 
+				  { type:'submit', 
+					value:'Create', 
+					style:'width:30%' }
+			   )
+		);
+
+		$("#display").append(form);
+	}
+	
+	function OnNewChallenge()
+	{
+		var name = $("#challengeNameInput").val();
+		var description = $("#challengeDescriptionInput").val();
+		var metric = $("#challengeMetricInput").val();
+		var duration = Number($("#challengeMetricInput").val());
+		var start = Number($("#challengeStartInput").val());
+		var goal = Number($("#challengeGoalInput").val());
+		
+		var newChallenge = Challenge.Create(name, description, "", duration, metric, start, goal);
+		UpdateChallenge(newChallenge);
+	}
+	
+  </script>
+</body>
+
+</html>
