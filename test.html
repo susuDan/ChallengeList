@@ -126,6 +126,16 @@
 	{
 		$("#display").contents().empty();
 		
+		var challengeLabel = $("<div/>", { 
+								class:'challengeLabel',
+								}).text("Title");
+		$("#display").append(challengeLabel);
+		
+		var divBreak = $("<div/>", { 
+						style:"height:0px;width:0px;clear:both"
+						});
+		$("#display").append(divBreak);
+			
 		for (var i = 0; i < challenges.length; i++) { 
 			var challenge = challenges[i];
 			displayChallenge(challenge);
@@ -133,10 +143,22 @@
 		log("challenge display refreshed");
 	}
 	
-	function displayChallenge(challenge)
+	function displayChallenge(challenge, y)
 	{
-		var challengeElem = $("<p class=\"challenge\"></p>)").text("Challenge: " + challenge.Name());
-		$("#display").contents().first().before(challengeElem);
+		var challengeName = $("<div/>", { 
+								class:'challengeItem'
+								}).text(challenge.Name());
+		$("#display").append(challengeName);
+									
+		var challengeDescription = $("<div/>", { 
+						class:'challengeItem'
+						}).text(challenge.Description());
+		$("#display").append(challengeDescription);
+		
+		var divBreak = $("<div/>", { 
+						style:"height:0px;width:0px;clear:both"
+						});
+		$("#display").append(divBreak);
 	}
 	
 	function log(message)

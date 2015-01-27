@@ -84,9 +84,27 @@ body {
     padding: 0px 0px;
     border: solid #ddd;
     border-width: 0 0px 0px 0px;
+	position: relative;
 }
 
 #display .challengeForm {
 	padding: 15px;
 }
 
+#display .challengeItem{
+	width: 196px;
+	height: 26px;
+	float: left;
+	background: white;
+	margin: 2px 2px;
+	overflow:hidden;
+}
+
+#display .challengeLabel{
+	width: 196px;
+	height: 26px;
+	float: left;
+	font-weight: bold;
+	margin: 2px 2px;
+	overflow:hidden;
+}
